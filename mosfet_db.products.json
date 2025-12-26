@@ -1,0 +1,48 @@
+[{
+  "_id": {
+    "$oid": "6947b8b8cb523de50cea319c"
+  },
+  "name": "I4 gen LAPTOP",
+  "price": 455,
+  "category": "Laptops",
+  "subcategory": "Dell",
+  "specs": "",
+  "imageUrl": "http://localhost:8000/uploads/1766308024126.jfif",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6947b8e3cb523de50cea319e"
+  },
+  "name": "ADAPTER",
+  "price": 45,
+  "category": "Adapters",
+  "subcategory": "Wall Adapter",
+  "specs": "",
+  "imageUrl": "http://localhost:8000/uploads/1766308067372.jfif",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6947b915cb523de50cea31a0"
+  },
+  "name": "NVME SSD 256gb",
+  "price": 34,
+  "category": "Storage",
+  "subcategory": "M.2",
+  "specs": "",
+  "imageUrl": "http://localhost:8000/uploads/1766308117940.jfif",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "694bcd72b6617321d5a778f8"
+  },
+  "name": "Victous",
+  "price": 355,
+  "category": "Adapters",
+  "subcategory": "Wall Adapter",
+  "specs": "",
+  "imageUrl": "http://localhost:8000/uploads/1766575474287.jpg",
+  "__v": 0
+}]

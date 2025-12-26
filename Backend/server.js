@@ -168,4 +168,12 @@ app.post('/api/orders', async (req, res) => {
   }
 });
 
-// ... rest of your code ...
+app.get('/api/orders', async (req, res) => {
+  try {
+    const orders = await Order.find().sort({ date: -1 }); // Sort by newest first
+    res.json(orders);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to fetch orders" });
+  }
+});
+
