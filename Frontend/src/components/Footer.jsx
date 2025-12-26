@@ -35,7 +35,7 @@ const Footer = () => (
         <div className="space-y-2 text-sm text-gray-500">
            <p>📍 Golmadi, Bhaktapur</p>
            <p>📞 +977 9765300233</p>
-           <p>✉️ info@mosfet.com</p>
+           <p>✉️ mosfetws@gmail.com</p>
         </div>
       </div>
 
