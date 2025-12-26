@@ -33,7 +33,7 @@ const AdminPanel = ({ products, onAddProduct, onRemoveProduct }) => {
 
   const fetchMessages = async () => {
     try {
-      const res = await axios.get('http://127.0.0.1:8000/api/contact');
+      const res = await axios.get('https://mosfetworkstation-backend.onrender.com/api/contact');
       setMessages(res.data);
     } catch (err) {
       console.error("Error fetching messages:", err);

@@ -81,7 +81,7 @@ app.post('/api/products', upload.single('image'), async (req, res) => {
       category: req.body.category,
       subcategory: req.body.subcategory, 
       specs: req.body.specs || "", 
-      imageUrl: `http://localhost:8000/uploads/${req.file.filename}` 
+      imageUrl: `https://mosfetworkstation.onrender.com/uploads/${req.file.filename}` 
     };
 
     console.log("📦 Data to Save:", productData);

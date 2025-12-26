@@ -14,7 +14,7 @@ const CheckoutModal = ({ isOpen, onClose, cartItems, total, onClearCart }) => {
 
   const handleOrder = async (e) => {
     e.preventDefault();
-    
+
     const orderData = {
       customerName: formData.name,
       address: formData.address,
@@ -25,15 +25,15 @@ const CheckoutModal = ({ isOpen, onClose, cartItems, total, onClearCart }) => {
     };
 
     try {
-      const res = await axios.post('http://127.0.0.1:8000/api/orders', orderData);
+      const res = await axios.post('https://mosfetworkstation-backend.onrender.com/api/orders', orderData);
       const orderId = res.data.orderId;
-      
+
       if (formData.payment === 'eSewa') {
         try {
-          const sigRes = await axios.post('http://127.0.0.1:8000/api/esewa-signature', {
-             total_amount: total,
-             transaction_uuid: orderId,
-             product_code: "EPAYTEST"
+          const sigRes = await axios.post('https://mosfetworkstation-backend.onrender.com/api/esewa-signature', {
+            total_amount: total,
+            transaction_uuid: orderId,
+            product_code: "EPAYTEST"
           });
           esewaCall(total, orderId, sigRes.data.signature);
         } catch (err) {
@@ -59,8 +59,8 @@ const CheckoutModal = ({ isOpen, onClose, cartItems, total, onClearCart }) => {
       product_code: "EPAYTEST",
       product_service_charge: "0",
       product_delivery_charge: "0",
-      success_url: "http://localhost:3000/order-success",
-      failure_url: "http://localhost:3000/",
+      success_url: "https://mosfet.com.np/order-success",
+      failure_url: "https://mosfet.com.np/",
       signed_field_names: "total_amount,transaction_uuid,product_code",
       signature: signature,
     };
@@ -84,28 +84,28 @@ const CheckoutModal = ({ isOpen, onClose, cartItems, total, onClearCart }) => {
   const completeOrder = (orderId) => {
     onClearCart();
     onClose();
-    navigate('/order-success', { 
-      state: { 
+    navigate('/order-success', {
+      state: {
         orderId: orderId,
         customer: formData,
         items: cartItems,
         total: total,
         paymentMethod: formData.payment
-      } 
+      }
     });
   };
 
   return (
     <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in">
       <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden animate-scale-up">
-        
+
         <div className="bg-gray-50 px-6 py-4 border-b flex justify-between items-center">
           <h2 className="text-xl font-bold text-gray-800">Checkout</h2>
           <button onClick={onClose} className="text-gray-400 hover:text-red-500 text-2xl">✕</button>
         </div>
 
         <form onSubmit={handleOrder} className="p-6 space-y-4">
-          
+
           <div>
             <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Full Name</label>
             <input name="name" required onChange={handleChange} className="w-full border rounded-lg p-3 outline-none focus:ring-2 focus:ring-blue-500 transition" placeholder="Ram Sharma" />
@@ -122,33 +122,33 @@ const CheckoutModal = ({ isOpen, onClose, cartItems, total, onClearCart }) => {
           </div>
 
           <div>
-             <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Select Payment Method</label>
-             <div className="grid grid-cols-3 gap-3">
-               
-               {/* COD Option */}
-               <label className={`border-2 rounded-xl p-3 flex flex-col items-center justify-center gap-1 cursor-pointer transition h-20 ${formData.payment === 'COD' ? 'border-blue-600 bg-blue-50' : 'border-gray-100 hover:border-gray-200'}`}>
-                 <input type="radio" name="payment" value="COD" checked={formData.payment === 'COD'} onChange={handleChange} className="hidden" />
-                 <span className="text-2xl">💵</span>
-                 <span className="font-bold text-xs text-gray-700">Cash</span>
-               </label>
-               
-               {/* eSewa Option */}
-               <label className={`border-2 rounded-xl p-3 flex flex-col items-center justify-center cursor-pointer transition h-20 overflow-hidden ${formData.payment === 'eSewa' ? 'border-green-500 ring-1 ring-green-500' : 'border-gray-100 hover:border-gray-200'}`}>
-                 <input type="radio" name="payment" value="eSewa" checked={formData.payment === 'eSewa'} onChange={handleChange} className="hidden" />
-                 {/* 👇 Using the online URL */}
-                 <img src={esewa} alt="eSewa" className="h-15 text-2xl object-contain p-2" />
-                 <span className="font-bold text-sm text-gray-700">eSewa</span>
-               </label>
+            <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Select Payment Method</label>
+            <div className="grid grid-cols-3 gap-3">
 
-               {/* Khalti Option */}
-               <label className={`border-2 rounded-xl p-3 flex flex-col items-center justify-center cursor-pointer transition h-20 overflow-hidden ${formData.payment === 'Khalti' ? 'border-purple-500 ring-1 ring-purple-500' : 'border-gray-100 hover:border-gray-200'}`}>
-                 <input type="radio" name="payment" value="Khalti" checked={formData.payment === 'Khalti'} onChange={handleChange} className="hidden" />
-                 {/* 👇 Using the online URL */}
-                 <img src={khalti} alt="Khalti" className="h-15 text-2xl object-contain p-2" />
-                 <span className="font-bold text-sm text-gray-700">Khalti</span>
-               </label>
+              {/* COD Option */}
+              <label className={`border-2 rounded-xl p-3 flex flex-col items-center justify-center gap-1 cursor-pointer transition h-20 ${formData.payment === 'COD' ? 'border-blue-600 bg-blue-50' : 'border-gray-100 hover:border-gray-200'}`}>
+                <input type="radio" name="payment" value="COD" checked={formData.payment === 'COD'} onChange={handleChange} className="hidden" />
+                <span className="text-2xl">💵</span>
+                <span className="font-bold text-xs text-gray-700">Cash</span>
+              </label>
 
-             </div>
+              {/* eSewa Option */}
+              <label className={`border-2 rounded-xl p-3 flex flex-col items-center justify-center cursor-pointer transition h-20 overflow-hidden ${formData.payment === 'eSewa' ? 'border-green-500 ring-1 ring-green-500' : 'border-gray-100 hover:border-gray-200'}`}>
+                <input type="radio" name="payment" value="eSewa" checked={formData.payment === 'eSewa'} onChange={handleChange} className="hidden" />
+                {/* 👇 Using the online URL */}
+                <img src={esewa} alt="eSewa" className="h-15 text-2xl object-contain p-2" />
+                <span className="font-bold text-sm text-gray-700">eSewa</span>
+              </label>
+
+              {/* Khalti Option */}
+              <label className={`border-2 rounded-xl p-3 flex flex-col items-center justify-center cursor-pointer transition h-20 overflow-hidden ${formData.payment === 'Khalti' ? 'border-purple-500 ring-1 ring-purple-500' : 'border-gray-100 hover:border-gray-200'}`}>
+                <input type="radio" name="payment" value="Khalti" checked={formData.payment === 'Khalti'} onChange={handleChange} className="hidden" />
+                {/* 👇 Using the online URL */}
+                <img src={khalti} alt="Khalti" className="h-15 text-2xl object-contain p-2" />
+                <span className="font-bold text-sm text-gray-700">Khalti</span>
+              </label>
+
+            </div>
           </div>
 
           <div className="pt-4 border-t flex justify-between items-center">
