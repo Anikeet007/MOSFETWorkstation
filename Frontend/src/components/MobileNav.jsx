@@ -78,7 +78,7 @@ const MobileNav = ({ onCategoryClick, onSearch, products = [], onAdd }) => {
                    onClick={closeMenu} 
                    className="w-full text-left p-3 hover:bg-gray-50 rounded-lg flex items-center gap-3 text-gray-700 font-medium"
                  >
-                    <span>📞</span> Contact Us
+                    <span>📞</span> Any Feedback
                  </Link>
 
                  <Link 
