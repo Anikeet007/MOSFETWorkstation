@@ -10,7 +10,7 @@ app.use(express.json());
 app.use(cors());
 
 // 1. Connect to MongoDB
-mongoose.connect('mongodb://localhost:27017/mosfet_db')
+mongoose.connect('mongodb+srv://aniket_db_user:Mosfet@123@cluster0.5bm2uaq.mongodb.net/?appName=Cluster0')
   .then(() => console.log("✅ Connected to MongoDB"))
   .catch((err) => console.error("❌ DB Connection Error:", err));
 
