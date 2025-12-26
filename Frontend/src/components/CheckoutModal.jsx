@@ -51,7 +51,7 @@ const CheckoutModal = ({ isOpen, onClose, cartItems, total, onClearCart }) => {
 
   const esewaCall = (amount, orderId, signature) => {
     var path = "https://rc-epay.esewa.com.np/api/epay/main/v2/form";
-    var params = {
+   var params = {
       amount: amount,
       tax_amount: "0",
       total_amount: amount,
