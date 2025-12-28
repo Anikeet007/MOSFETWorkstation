@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
 // 👇 UPDATE THIS: Your Render Backend URL
-const API_BASE_URL = process.env.REACT_APP_API_URL || "https://mosfetworkstation-backend.onrender.com"; 
+const API_BASE_URL = "https://mosfetworkstation-backend.onrender.com"; 
 
 
 const categoryData = {
@@ -50,7 +50,7 @@ const AdminPanel = ({ products, onAddProduct, onRemoveProduct }) => {
 
   const handleLogin = (e) => {
     e.preventDefault();
-    
+
    const correctPassword = process.env.REACT_APP_ADMIN_PASSWORD;
 
     if (!correctPassword) {
