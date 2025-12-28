@@ -6,6 +6,7 @@ const cors = require('cors');
 
 const app = express();
 app.use(cors());
+// Increase payload limit for Base64 images
 app.use(express.json({ limit: '50mb' })); 
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
@@ -19,7 +20,9 @@ if (!MONGO_URI) {
     .catch((err) => console.error("❌ Cloud DB Error:", err));
 }
 
-// 2. Define Database Schemas
+// --- DATABASE SCHEMAS ---
+
+// Product Schema
 const productSchema = new mongoose.Schema({
   name: String,
   price: Number,
@@ -30,6 +33,7 @@ const productSchema = new mongoose.Schema({
 });
 const Product = mongoose.model('Product', productSchema);
 
+// Contact Schema
 const contactSchema = new mongoose.Schema({
   name: String,
   email: String,
@@ -38,6 +42,7 @@ const contactSchema = new mongoose.Schema({
 });
 const Contact = mongoose.model('Contact', contactSchema);
 
+// Order Schema
 const orderSchema = new mongoose.Schema({
   customerName: String,
   address: String,
@@ -49,7 +54,6 @@ const orderSchema = new mongoose.Schema({
   date: { type: Date, default: Date.now }
 });
 const Order = mongoose.model('Order', orderSchema);
-
 
 
 // --- ROUTES ---
@@ -69,7 +73,6 @@ app.get('/api/products', async (req, res) => {
 // POST Product (Base64 Image Version)
 app.post('/api/products', async (req, res) => {
   try {
-    // We receive the image as a string in req.body.image now
     const newProduct = new Product(req.body);
     await newProduct.save();
     console.log("✅ Product Saved:", newProduct.name);
@@ -90,7 +93,7 @@ app.delete('/api/products/:id', async (req, res) => {
   }
 });
 
-// POST Contact
+// POST Contact Message
 app.post('/api/contact', async (req, res) => {
   try {
     const newContact = new Contact(req.body);
@@ -99,19 +102,25 @@ app.post('/api/contact', async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// GET Contacts
+// GET Contact Messages
 app.get('/api/contact', async (req, res) => {
-  const contacts = await Contact.find().sort({ date: -1 });
-  res.json(contacts);
+  try {
+    const contacts = await Contact.find().sort({ date: -1 });
+    res.json(contacts);
+  } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// POST Order
+// POST Order (Place Order)
 app.post('/api/orders', async (req, res) => {
   try {
     const newOrder = new Order(req.body);
     await newOrder.save();
+    console.log("📦 New Order Placed:", newOrder._id);
     res.json({ message: "Order Success!", orderId: newOrder._id });
-  } catch (err) { res.status(500).json({ error: "Order failed" }); }
+  } catch (err) { 
+    console.error("Order Error:", err);
+    res.status(500).json({ error: "Failed to place order" }); 
+  }
 });
 
 // GET Orders
@@ -125,31 +134,3 @@ app.get('/api/orders', async (req, res) => {
 // Start Server
 const PORT = process.env.PORT || 8000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
-
-// 1. Define Order Schema
-
-// ... existing routes ...
-
-// 2. NEW ROUTE: Place Order
-app.post('/api/orders', async (req, res) => {
-  try {
-    const newOrder = new Order(req.body);
-    await newOrder.save();
-    console.log("📦 New Order Placed:", newOrder._id);
-    
-    // Return the Order ID (crucial for payment tracking)
-    res.json({ message: "Order Success!", orderId: newOrder._id });
-  } catch (err) {
-    res.status(500).json({ error: "Failed to place order" });
-  }
-});
-
-app.get('/api/orders', async (req, res) => {
-  try {
-    const orders = await Order.find().sort({ date: -1 }); // Sort by newest first
-    res.json(orders);
-  } catch (err) {
-    res.status(500).json({ error: "Failed to fetch orders" });
-  }
-});
- 
