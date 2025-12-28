@@ -3,14 +3,12 @@ import React, { useState, useEffect } from 'react';
 const slides = [
   {
     id: 1,
-    // Background for the first slide (Dark Gaming Vibe)
     image: "https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=2070&auto=format&fit=crop",
-    // Floating Transparent Image (The Mouse)
     productImage: "https://resource.logitechg.com/w_692,c_lpad,ar_4:3,q_auto:best,f_auto,b_rgb:000000/content/dam/gaming/en/products/g502-lightspeed-gaming-mouse/g502-lightspeed-hero.png",
     title: "Pro Gaming Gear",
     subtitle: "RGB Mechanical Keyboards & Precision Mice.",
     cta: "Shop Accessories",
-    category: "Accessories", // Links to this category
+    category: "Accessories",
     align: "text-left"
   },
   {

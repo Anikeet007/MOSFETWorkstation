@@ -55,7 +55,7 @@ export const Contact = () => {
     setStatus('loading');
     try {
       // Send data to backend
-      await axios.post('http://127.0.0.1:8000/api/contact', formData);
+      await axios.post('https://mosfetworkstation-backend.onrender.com', formData);
       setStatus('success');
       setFormData({ name: '', email: '', message: '' }); // Clear form
       alert("✅ Message Sent! We will contact you shortly.");

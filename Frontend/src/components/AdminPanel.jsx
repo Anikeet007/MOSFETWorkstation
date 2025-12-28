@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
 // 👇 UPDATE THIS: Your Render Backend URL
-const API_BASE_URL = "https://mosfetworkstation-backend.onrender.com"; 
+const API_BASE_URL = process.env.REACT_APP_API_URL || "https://mosfetworkstation-backend.onrender.com"; 
+
 
 const categoryData = {
   "Laptops": ["Dell", "HP", "Acer", "Asus", "Apple"],
@@ -49,14 +50,20 @@ const AdminPanel = ({ products, onAddProduct, onRemoveProduct }) => {
 
   const handleLogin = (e) => {
     e.preventDefault();
-    const ADMIN_PASSWORD = "mosfet_secure_123"; 
-    if (passwordInput === ADMIN_PASSWORD) {
+    
+   const correctPassword = process.env.REACT_APP_ADMIN_PASSWORD;
+
+    if (!correctPassword) {
+      alert("⚠️ Configuration Error: Admin password not set in environment variables.");
+      return;
+    }
+
+    if (passwordInput === correctPassword) {
         setIsAuthenticated(true);
     } else {
         alert("❌ Incorrect Password!");
     }
   };
-
   const handleChange = (e) => {
     const { name, value } = e.target;
     if (name === "category") {

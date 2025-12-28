@@ -58,17 +58,13 @@ function App() {
     setCartItems((prev) => {
       const existing = prev.find((item) => item.id === product.id);
       if (existing) {
-        // If item is already in cart, just increase the number
+
         return prev.map((item) => 
           item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
         );
       }
-      // If item is new, add it to the list
       return [...prev, { ...product, quantity: 1 }];
     });
-    
-    // 🛑 I removed the line "setIsCartOpen(true)" here.
-    // Now the red number will go up, but the drawer stays closed!
   };
 
   const removeFromCart = (id) => setCartItems((prev) => prev.filter((item) => item.id !== id));
