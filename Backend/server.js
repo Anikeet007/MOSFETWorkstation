@@ -3,6 +3,7 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const nodemailer = require('nodemailer');
 
 const app = express();
 app.use(cors());
@@ -19,6 +20,14 @@ if (!MONGO_URI) {
     .then(() => console.log("✅ Cloud MongoDB Connected"))
     .catch((err) => console.error("❌ Cloud DB Error:", err));
 }
+
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.EMAIL_USER, // Add your Gmail address to .env
+    pass: process.env.EMAIL_PASS  // Add your Gmail App Password to .env
+  }
+});
 
 // --- DATABASE SCHEMAS ---
 
@@ -129,6 +138,35 @@ app.get('/api/orders', async (req, res) => {
     const orders = await Order.find().sort({ date: -1 });
     res.json(orders);
   } catch (err) { res.status(500).json({ error: "Failed to fetch orders" }); }
+});
+
+app.put('/api/orders/:id/deliver', async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.id);
+    if (!order) return res.status(404).json({ error: "Order not found" });
+
+    order.status = "Delivered";
+    await order.save();
+
+    // Send Email Notification
+    if (order.email) {
+      const mailOptions = {
+        from: process.env.EMAIL_USER,
+        to: order.email,
+        subject: "📦 Order Delivered - Mosfet Workstation",
+        text: `Hello ${order.customerName},\n\nGood news! Your order has been delivered successfully.\n\nItems: ${order.items.length}\nTotal: Rs.${order.totalAmount}\n\nThank you for choosing Mosfet Workstation!`
+      };
+      
+      transporter.sendMail(mailOptions, (error, info) => {
+        if (error) console.log("Email Error:", error);
+        else console.log("Email sent: " + info.response);
+      });
+    }
+
+    res.json({ message: "Order marked as Delivered and Email Sent!" });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to update order" });
+  }
 });
 
 // Start Server

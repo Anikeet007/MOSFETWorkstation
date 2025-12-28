@@ -98,6 +98,17 @@ const AdminPanel = ({ products, onAddProduct, onRemoveProduct }) => {
     document.getElementById("fileInput").value = "";
   };
 
+   const markDelivered = async (orderId) => {
+    if (!window.confirm("Mark this order as Delivered and email customer?")) return;
+    try {
+      await axios.put(`${API_BASE_URL}/api/orders/${orderId}/deliver`);
+      alert("✅ Status Updated! Email Sent.");
+      fetchOrders(); // Refresh list
+    } catch (err) {
+      alert("❌ Failed to update status.");
+    }
+  };
+
   if (!isAuthenticated) {
     return (
         <div className="flex flex-col items-center justify-center h-[60vh] bg-gray-50 rounded-xl border border-gray-200">
@@ -170,26 +181,35 @@ const AdminPanel = ({ products, onAddProduct, onRemoveProduct }) => {
           </div>
         )}
 
-        {/* --- TAB 2: ORDERS --- */}
+        {/* --- ORDERS TAB (Updated with Deliver Button) --- */}
         {activeTab === 'orders' && (
           <div className="animate-fade-in space-y-6">
              {(!Array.isArray(orders) || orders.length === 0) ? <p className="text-gray-400 text-center py-10">No orders yet.</p> : orders.map((order) => (
                <div key={order._id} className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition">
                   <div className="bg-gray-50 px-6 py-4 border-b flex justify-between items-center">
-                     <div><h4 className="font-bold text-gray-800">{order.customerName}</h4><p className="text-xs text-gray-500">{order.phone} • {order.address}</p></div>
-                     <div className="text-right">
-                       <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold mb-1 ${order.paymentMethod === 'COD' ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'}`}>{order.paymentMethod}</span>
-                       <p className="text-xs text-gray-400">{new Date(order.date).toLocaleDateString()}</p>
+                     <div>
+                       <h4 className="font-bold text-gray-800">{order.customerName}</h4>
+                       <p className="text-xs text-gray-500">{order.email} • {order.phone}</p>
+                     </div>
+                     <div className="text-right flex flex-col items-end">
+                       <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold mb-1 ${order.status === 'Delivered' ? 'bg-blue-100 text-blue-700' : 'bg-orange-100 text-orange-700'}`}>
+                         {order.status || "Pending"}
+                       </span>
+                       {/* 👇 Mark as Delivered Button */}
+                       {order.status !== 'Delivered' && (
+                         <button onClick={() => markDelivered(order._id)} className="text-xs text-blue-600 underline font-bold mt-1">Mark as Delivered</button>
+                       )}
                      </div>
                   </div>
                   <div className="p-4 bg-white">
                     <div className="space-y-2">{order.items.map((item, idx) => (<div key={idx} className="flex items-center justify-between text-sm"><div className="flex items-center gap-3"><span className="bg-gray-100 text-gray-600 px-2 py-0.5 rounded text-xs font-bold">{item.quantity}x</span><span className="text-gray-700">{item.name}</span></div><span className="font-medium">${(item.price * item.quantity).toFixed(2)}</span></div>))}</div>
-                    <div className="mt-4 pt-4 border-t flex justify-between items-center"><span className="text-sm font-bold text-gray-500">TOTAL AMOUNT</span><span className="text-xl font-bold text-blue-600">Rs.{order.totalAmount}</span></div>
+                    <div className="mt-4 pt-4 border-t flex justify-between items-center"><span className="text-sm font-bold text-gray-500">TOTAL AMOUNT</span><span className="text-xl font-bold text-blue-600">${order.totalAmount}</span></div>
                   </div>
                </div>
              ))}
           </div>
         )}
+
 
         {/* --- TAB 3: MESSAGES --- */}
         {activeTab === 'messages' && (

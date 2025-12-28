@@ -53,10 +53,11 @@ export const Contact = () => {
       alert("Please fill in all fields");
       return;
     }
-
+    
     setStatus('loading');
     try {
-      await axios.post('API_URL', formData);
+      // 👇 FIXED: Removed quotes around API_URL variable
+      await axios.post(API_URL, formData);
       setStatus('success');
       setFormData({ name: '', email: '', message: '' }); // Clear form
       alert("✅ Message Sent! We will contact you shortly.");

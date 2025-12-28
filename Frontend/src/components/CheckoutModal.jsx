@@ -111,6 +111,11 @@ const CheckoutModal = ({ isOpen, onClose, cartItems, total, onClearCart }) => {
             <input name="name" required onChange={handleChange} className="w-full border rounded-lg p-3 outline-none focus:ring-2 focus:ring-blue-500 transition" placeholder="Ram Sharma" />
           </div>
 
+              <div>
+            <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Email Address</label>
+            <input name="email" type="email" required onChange={handleChange} className="w-full border rounded-lg p-3 outline-none focus:ring-2 focus:ring-blue-500 transition" placeholder="ram@example.com" />
+          </div>
+
           <div>
             <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Delivery Address</label>
             <input name="address" required onChange={handleChange} className="w-full border rounded-lg p-3 outline-none focus:ring-2 focus:ring-blue-500 transition" placeholder="Kathmandu, Nepal" />
