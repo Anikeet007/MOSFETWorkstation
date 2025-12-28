@@ -161,7 +161,7 @@ const AdminPanel = ({ products, onAddProduct, onRemoveProduct }) => {
                  <div key={item._id || item.id} className="flex items-center justify-between p-3 bg-white rounded-lg border">
                     <div className="flex items-center gap-4">
                       <img src={item.imageUrl || item.image} alt={item.name} className="w-12 h-12 object-contain rounded-md border" />
-                      <div><h4 className="font-bold text-sm">{item.name}</h4><span className="text-xs text-gray-500">${item.price}</span></div>
+                      <div><h4 className="font-bold text-sm">{item.name}</h4><span className="text-xs text-gray-500">Rs.{item.price}</span></div>
                     </div>
                     <button onClick={() => onRemoveProduct(item._id || item.id)} className="text-red-500 font-bold text-xs bg-red-50 px-3 py-1.5 rounded">Remove</button>
                  </div>
@@ -184,7 +184,7 @@ const AdminPanel = ({ products, onAddProduct, onRemoveProduct }) => {
                   </div>
                   <div className="p-4 bg-white">
                     <div className="space-y-2">{order.items.map((item, idx) => (<div key={idx} className="flex items-center justify-between text-sm"><div className="flex items-center gap-3"><span className="bg-gray-100 text-gray-600 px-2 py-0.5 rounded text-xs font-bold">{item.quantity}x</span><span className="text-gray-700">{item.name}</span></div><span className="font-medium">${(item.price * item.quantity).toFixed(2)}</span></div>))}</div>
-                    <div className="mt-4 pt-4 border-t flex justify-between items-center"><span className="text-sm font-bold text-gray-500">TOTAL AMOUNT</span><span className="text-xl font-bold text-blue-600">${order.totalAmount}</span></div>
+                    <div className="mt-4 pt-4 border-t flex justify-between items-center"><span className="text-sm font-bold text-gray-500">TOTAL AMOUNT</span><span className="text-xl font-bold text-blue-600">Rs.{order.totalAmount}</span></div>
                   </div>
                </div>
              ))}

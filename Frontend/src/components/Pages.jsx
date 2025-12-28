@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios'; 
-// Reusable "Back to Shop" Header
+
+const API_URL = "https://mosfetworkstation-backend.onrender.com/api/contact";
+
+
 const PageHeader = ({ title }) => (
   <div className="flex flex-col md:flex-row md:items-center justify-between mb-10 border-b pb-6">
     <h1 className="text-3xl md:text-5xl font-extrabold text-gray-900 tracking-tight">{title}</h1>
@@ -53,8 +56,7 @@ export const Contact = () => {
 
     setStatus('loading');
     try {
-      // Send data to backend
-      await axios.post('https://mosfetworkstation-backend.onrender.com', formData);
+      await axios.post('API_URL', formData);
       setStatus('success');
       setFormData({ name: '', email: '', message: '' }); // Clear form
       alert("✅ Message Sent! We will contact you shortly.");
