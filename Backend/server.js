@@ -1,37 +1,32 @@
+require('dotenv').config(); 
+
 const express = require('express');
-const fs = require('fs'); 
 const mongoose = require('mongoose');
 const cors = require('cors');
-const multer = require('multer');
-const path = require('path');
 
 const app = express();
-app.use(express.json());
 app.use(cors());
+app.use(express.json({ limit: '50mb' })); 
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
-// 1. Connect to MongoDB
-mongoose.connect('mongodb+srv://aniket_db_user:mosfet123@cluster0.5bm2uaq.mongodb.net/?appName=Cluster0')
-  .then(() => console.log("✅ Connected to MongoDB"))
-  .catch((err) => console.error("❌ DB Connection Error:", err));
+const MONGO_URI = process.env.MONGO_URI; 
 
-// 2. Setup Multer (Uploads)
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, 'uploads/'),
-  filename: (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname))
-});
-const upload = multer({ storage: storage });
+if (!MONGO_URI) {
+  console.error("❌ Error: MONGO_URI is missing in .env file.");
+} else {
+  mongoose.connect(MONGO_URI)
+    .then(() => console.log("✅ Cloud MongoDB Connected"))
+    .catch((err) => console.error("❌ Cloud DB Error:", err));
+}
 
-// Allow the app to show images from the 'uploads' folder
-app.use('/uploads', express.static('uploads'));
-
-// 3. Define Database Schemas
+// 2. Define Database Schemas
 const productSchema = new mongoose.Schema({
   name: String,
   price: Number,
   category: String,
   subcategory: String,
   specs: String,
-  imageUrl: String
+  image: String
 });
 const Product = mongoose.model('Product', productSchema);
 
@@ -43,103 +38,6 @@ const contactSchema = new mongoose.Schema({
 });
 const Contact = mongoose.model('Contact', contactSchema);
 
-// --- ROUTES ---
-
-// 📩 POST: Save Contact Form Messages
-app.post('/api/contact', async (req, res) => {
-  try {
-    const newContact = new Contact(req.body);
-    await newContact.save();
-    console.log("📬 New Message Received from:", req.body.name);
-    res.json({ message: "Message received!" });
-  } catch (err) {
-    console.error("Contact Error:", err);
-    res.status(500).json({ error: "Failed to save message" });
-  }
-});
-
-// 👇 ADDED: GET Route to View Messages (For Admin)
-app.get('/api/contact', async (req, res) => {
-  try {
-    const messages = await Contact.find().sort({ date: -1 });
-    res.json(messages);
-  } catch (err) {
-    res.status(500).json({ error: "Failed to fetch messages" });
-  }
-});
-
-// 📤 UPLOAD ROUTE: Save Product
-app.post('/api/products', upload.single('image'), async (req, res) => {
-  console.log("\n📥 New Upload Request!"); 
-  
-  try {
-    if (!req.file) throw new Error("Image file is missing!");
-
-    const productData = {
-      name: req.body.name,
-      price: req.body.price, 
-      category: req.body.category,
-      subcategory: req.body.subcategory, 
-      specs: req.body.specs || "", 
-      imageUrl: `https://mosfetworkstation.onrender.com/uploads/${req.file.filename}` 
-    };
-
-    console.log("📦 Data to Save:", productData);
-
-    const newProduct = new Product(productData);
-    await newProduct.save();
-
-    console.log("✅ SUCCESS: Product Saved!");
-    res.status(201).json(newProduct);
-
-  } catch (err) {
-    console.error("❌ ERROR:", err.message); 
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// GET ROUTE: Fetch Products
-app.get('/api/products', async (req, res) => {
-  try {
-    const products = await Product.find().sort({ createdAt: -1 });
-    res.json(products);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
-
-// DELETE ROUTE: Remove Product & Image
-app.delete('/api/products/:id', async (req, res) => {
-  try {
-    const id = req.params.id;
-    const product = await Product.findById(id);
-    
-    if (!product) return res.status(404).json({ error: "Product not found" });
-
-    // Delete image file if it exists
-    if (product.imageUrl) {
-        const filename = product.imageUrl.split('/').pop();
-        const filePath = path.join(__dirname, 'uploads', filename);
-        fs.unlink(filePath, (err) => {
-            if (err) console.log("⚠️ File delete warning:", err.message);
-            else console.log("🗑️ Image file deleted:", filename);
-        });
-    }
-
-    await Product.findByIdAndDelete(id);
-    res.json({ message: "Item and image deleted successfully!" });
-
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Could not delete item" });
-  }
-});
-
-// 4. Start Server
-const PORT = 8000;
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
-
-// 1. Define Order Schema
 const orderSchema = new mongoose.Schema({
   customerName: String,
   address: String,
@@ -151,6 +49,84 @@ const orderSchema = new mongoose.Schema({
   date: { type: Date, default: Date.now }
 });
 const Order = mongoose.model('Order', orderSchema);
+
+
+
+// --- ROUTES ---
+
+app.get('/', (req, res) => res.send("Mosfet Backend Running!"));
+
+// GET Products
+app.get('/api/products', async (req, res) => {
+  try {
+    const products = await Product.find().sort({ createdAt: -1 });
+    res.json(products);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST Product (Base64 Image Version)
+app.post('/api/products', async (req, res) => {
+  try {
+    // We receive the image as a string in req.body.image now
+    const newProduct = new Product(req.body);
+    await newProduct.save();
+    console.log("✅ Product Saved:", newProduct.name);
+    res.json(newProduct);
+  } catch (err) {
+    console.error("Save Error:", err.message);
+    res.status(500).json({ error: "Failed to save product" });
+  }
+});
+
+// DELETE Product
+app.delete('/api/products/:id', async (req, res) => {
+  try {
+    await Product.findByIdAndDelete(req.params.id);
+    res.json({ message: "Deleted!" });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to delete" });
+  }
+});
+
+// POST Contact
+app.post('/api/contact', async (req, res) => {
+  try {
+    const newContact = new Contact(req.body);
+    await newContact.save();
+    res.json({ message: "Saved" });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// GET Contacts
+app.get('/api/contact', async (req, res) => {
+  const contacts = await Contact.find().sort({ date: -1 });
+  res.json(contacts);
+});
+
+// POST Order
+app.post('/api/orders', async (req, res) => {
+  try {
+    const newOrder = new Order(req.body);
+    await newOrder.save();
+    res.json({ message: "Order Success!", orderId: newOrder._id });
+  } catch (err) { res.status(500).json({ error: "Order failed" }); }
+});
+
+// GET Orders
+app.get('/api/orders', async (req, res) => {
+  try {
+    const orders = await Order.find().sort({ date: -1 });
+    res.json(orders);
+  } catch (err) { res.status(500).json({ error: "Failed to fetch orders" }); }
+});
+
+// Start Server
+const PORT = process.env.PORT || 8000;
+app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+
+// 1. Define Order Schema
 
 // ... existing routes ...
 

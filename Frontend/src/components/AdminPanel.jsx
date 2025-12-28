@@ -16,14 +16,14 @@ const AdminPanel = ({ products, onAddProduct, onRemoveProduct }) => {
   const [passwordInput, setPasswordInput] = useState("");
   const [activeTab, setActiveTab] = useState('inventory'); 
   const [messages, setMessages] = useState([]); 
-  const [orders, setOrders] = useState([]); // 🛍️ NEW: Store orders
+  const [orders, setOrders] = useState([]); 
   
   const [newProduct, setNewProduct] = useState({
     name: '',
     price: '',
     category: 'Laptops',
     subcategory: 'Dell',
-    image: '' 
+    image: '' // This will now store the Base64 string
   });
 
   useEffect(() => {
@@ -40,7 +40,6 @@ const AdminPanel = ({ products, onAddProduct, onRemoveProduct }) => {
     } catch (err) { console.error("Error fetching messages:", err); }
   };
 
-  // 🛍️ NEW: Fetch Orders
   const fetchOrders = async () => {
     try {
       const res = await axios.get(`${API_BASE_URL}/api/orders`);
@@ -50,8 +49,12 @@ const AdminPanel = ({ products, onAddProduct, onRemoveProduct }) => {
 
   const handleLogin = (e) => {
     e.preventDefault();
-    if (passwordInput === "mosfetispass") setIsAuthenticated(true);
-    else alert("❌ Incorrect Password!");
+    const ADMIN_PASSWORD = "mosfet_secure_123"; 
+    if (passwordInput === ADMIN_PASSWORD) {
+        setIsAuthenticated(true);
+    } else {
+        alert("❌ Incorrect Password!");
+    }
   };
 
   const handleChange = (e) => {
@@ -63,9 +66,17 @@ const AdminPanel = ({ products, onAddProduct, onRemoveProduct }) => {
     }
   };
 
+  // 👇 CHANGED: Convert file to Base64 string
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      // 1. Check file size (limit to 2MB to prevent DB bloat)
+      if (file.size > 2 * 1024 * 1024) {
+        alert("File is too large! Please choose an image under 2MB.");
+        return;
+      }
+
+      // 2. Read file as Data URL (Base64)
       const reader = new FileReader();
       reader.readAsDataURL(file);
       reader.onloadend = () => {
@@ -80,6 +91,7 @@ const AdminPanel = ({ products, onAddProduct, onRemoveProduct }) => {
       return alert("Please fill in details and select an image");
     }
 
+    // Pass the product object directly (contains image string)
     onAddProduct(newProduct);
 
     setNewProduct({ name: '', price: '', category: 'Laptops', subcategory: 'Dell', image: '' });
@@ -147,6 +159,7 @@ const AdminPanel = ({ products, onAddProduct, onRemoveProduct }) => {
                {products.map((item) => (
                  <div key={item._id || item.id} className="flex items-center justify-between p-3 bg-white rounded-lg border">
                     <div className="flex items-center gap-4">
+                      {/* Handle both new Base64 images and old URLs */}
                       <img src={item.imageUrl || item.image} alt={item.name} className="w-12 h-12 object-contain rounded-md border" />
                       <div><h4 className="font-bold text-sm">{item.name}</h4><span className="text-xs text-gray-500">${item.price}</span></div>
                     </div>
@@ -157,42 +170,21 @@ const AdminPanel = ({ products, onAddProduct, onRemoveProduct }) => {
           </div>
         )}
 
-        {/* --- TAB 2: ORDERS (NEW) --- */}
+        {/* --- TAB 2: ORDERS --- */}
         {activeTab === 'orders' && (
           <div className="animate-fade-in space-y-6">
              {orders.length === 0 ? <p className="text-gray-400 text-center py-10">No orders yet.</p> : orders.map((order) => (
                <div key={order._id} className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition">
-                  {/* Order Header */}
                   <div className="bg-gray-50 px-6 py-4 border-b flex justify-between items-center">
-                     <div>
-                       <h4 className="font-bold text-gray-800">{order.customerName}</h4>
-                       <p className="text-xs text-gray-500">{order.phone} • {order.address}</p>
-                     </div>
+                     <div><h4 className="font-bold text-gray-800">{order.customerName}</h4><p className="text-xs text-gray-500">{order.phone} • {order.address}</p></div>
                      <div className="text-right">
-                       <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold mb-1 ${order.paymentMethod === 'COD' ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'}`}>
-                         {order.paymentMethod}
-                       </span>
+                       <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold mb-1 ${order.paymentMethod === 'COD' ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'}`}>{order.paymentMethod}</span>
                        <p className="text-xs text-gray-400">{new Date(order.date).toLocaleDateString()}</p>
                      </div>
                   </div>
-                  
-                  {/* Order Items */}
                   <div className="p-4 bg-white">
-                    <div className="space-y-2">
-                      {order.items.map((item, idx) => (
-                        <div key={idx} className="flex items-center justify-between text-sm">
-                           <div className="flex items-center gap-3">
-                              <span className="bg-gray-100 text-gray-600 px-2 py-0.5 rounded text-xs font-bold">{item.quantity}x</span>
-                              <span className="text-gray-700">{item.name}</span>
-                           </div>
-                           <span className="font-medium">${(item.price * item.quantity).toFixed(2)}</span>
-                        </div>
-                      ))}
-                    </div>
-                    <div className="mt-4 pt-4 border-t flex justify-between items-center">
-                       <span className="text-sm font-bold text-gray-500">TOTAL AMOUNT</span>
-                       <span className="text-xl font-bold text-blue-600">${order.totalAmount}</span>
-                    </div>
+                    <div className="space-y-2">{order.items.map((item, idx) => (<div key={idx} className="flex items-center justify-between text-sm"><div className="flex items-center gap-3"><span className="bg-gray-100 text-gray-600 px-2 py-0.5 rounded text-xs font-bold">{item.quantity}x</span><span className="text-gray-700">{item.name}</span></div><span className="font-medium">${(item.price * item.quantity).toFixed(2)}</span></div>))}</div>
+                    <div className="mt-4 pt-4 border-t flex justify-between items-center"><span className="text-sm font-bold text-gray-500">TOTAL AMOUNT</span><span className="text-xl font-bold text-blue-600">${order.totalAmount}</span></div>
                   </div>
                </div>
              ))}
