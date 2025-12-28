@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios'; // Import Axios for API calls
-
+import axios from 'axios'; 
 // Reusable "Back to Shop" Header
 const PageHeader = ({ title }) => (
   <div className="flex flex-col md:flex-row md:items-center justify-between mb-10 border-b pb-6">

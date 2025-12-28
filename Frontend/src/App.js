@@ -21,7 +21,7 @@ function App() {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
 
-  const API_URL = "https://mosfetworkstation-backend.onrender.com";
+  const API_URL = "https://mosfetworkstation-backend.onrender.com/api/products";
 
   // --- FETCH DATA ---
   useEffect(() => {
