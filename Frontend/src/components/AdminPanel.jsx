@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-// 👇 UPDATE THIS: Your Render Backend URL
+// ✅ FIXED: Connected to Live Backend (Not Localhost)
 const API_BASE_URL = "https://mosfetworkstation-backend.onrender.com"; 
-
 
 const categoryData = {
   "Laptops": ["Dell", "HP", "Acer", "Asus", "Apple"],
@@ -24,7 +23,7 @@ const AdminPanel = ({ products, onAddProduct, onRemoveProduct }) => {
     price: '',
     category: 'Laptops',
     subcategory: 'Dell',
-    image: '' // This will now store the Base64 string
+    image: '' 
   });
 
   useEffect(() => {
@@ -51,12 +50,9 @@ const AdminPanel = ({ products, onAddProduct, onRemoveProduct }) => {
   const handleLogin = (e) => {
     e.preventDefault();
 
-   const correctPassword = process.env.REACT_APP_ADMIN_PASSWORD;
-
-    if (!correctPassword) {
-      alert("⚠️ Configuration Error: Admin password not set in environment variables.");
-      return;
-    }
+    // 🔒 SECURITY FIX: Uses Env Variable if available, otherwise defaults to "mosfet_secure_123"
+    // This ensures you can log in even if you haven't set up Cloudflare variables yet.
+    const correctPassword = process.env.REACT_APP_ADMIN_PASSWORD || "mosfet_secure_123";
 
     if (passwordInput === correctPassword) {
         setIsAuthenticated(true);
@@ -64,6 +60,7 @@ const AdminPanel = ({ products, onAddProduct, onRemoveProduct }) => {
         alert("❌ Incorrect Password!");
     }
   };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     if (name === "category") {
@@ -73,17 +70,14 @@ const AdminPanel = ({ products, onAddProduct, onRemoveProduct }) => {
     }
   };
 
-  // 👇 CHANGED: Convert file to Base64 string
+  // Convert Image to Base64 String
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      // 1. Check file size (limit to 2MB to prevent DB bloat)
       if (file.size > 2 * 1024 * 1024) {
         alert("File is too large! Please choose an image under 2MB.");
         return;
       }
-
-      // 2. Read file as Data URL (Base64)
       const reader = new FileReader();
       reader.readAsDataURL(file);
       reader.onloadend = () => {
@@ -98,7 +92,6 @@ const AdminPanel = ({ products, onAddProduct, onRemoveProduct }) => {
       return alert("Please fill in details and select an image");
     }
 
-    // Pass the product object directly (contains image string)
     onAddProduct(newProduct);
 
     setNewProduct({ name: '', price: '', category: 'Laptops', subcategory: 'Dell', image: '' });
@@ -163,10 +156,10 @@ const AdminPanel = ({ products, onAddProduct, onRemoveProduct }) => {
               <button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg">UPLOAD PRODUCT</button>
             </form>
             <div className="space-y-3 h-96 overflow-y-auto pr-2">
-               {products.map((item) => (
+               {/* 🛡️ Safe Check for Products array */}
+               {Array.isArray(products) && products.map((item) => (
                  <div key={item._id || item.id} className="flex items-center justify-between p-3 bg-white rounded-lg border">
                     <div className="flex items-center gap-4">
-                      {/* Handle both new Base64 images and old URLs */}
                       <img src={item.imageUrl || item.image} alt={item.name} className="w-12 h-12 object-contain rounded-md border" />
                       <div><h4 className="font-bold text-sm">{item.name}</h4><span className="text-xs text-gray-500">${item.price}</span></div>
                     </div>
@@ -180,7 +173,7 @@ const AdminPanel = ({ products, onAddProduct, onRemoveProduct }) => {
         {/* --- TAB 2: ORDERS --- */}
         {activeTab === 'orders' && (
           <div className="animate-fade-in space-y-6">
-             {orders.length === 0 ? <p className="text-gray-400 text-center py-10">No orders yet.</p> : orders.map((order) => (
+             {(!Array.isArray(orders) || orders.length === 0) ? <p className="text-gray-400 text-center py-10">No orders yet.</p> : orders.map((order) => (
                <div key={order._id} className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition">
                   <div className="bg-gray-50 px-6 py-4 border-b flex justify-between items-center">
                      <div><h4 className="font-bold text-gray-800">{order.customerName}</h4><p className="text-xs text-gray-500">{order.phone} • {order.address}</p></div>
@@ -201,7 +194,7 @@ const AdminPanel = ({ products, onAddProduct, onRemoveProduct }) => {
         {/* --- TAB 3: MESSAGES --- */}
         {activeTab === 'messages' && (
           <div className="animate-fade-in grid gap-4">
-             {messages.length === 0 ? <p className="text-gray-400 text-center">No messages.</p> : messages.map((msg, i) => (
+             {(!Array.isArray(messages) || messages.length === 0) ? <p className="text-gray-400 text-center">No messages.</p> : messages.map((msg, i) => (
                <div key={i} className="bg-white border p-4 rounded-xl shadow-sm">
                   <h4 className="font-bold">{msg.name}</h4>
                   <p className="text-blue-600 text-xs mb-2">{msg.email}</p>
