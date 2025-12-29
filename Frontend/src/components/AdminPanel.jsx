@@ -71,13 +71,15 @@ const AdminPanel = ({ products, onAddProduct, onRemoveProduct }) => {
   };
 
   // Convert Image to Base64 String
-  const handleFileChange = (e) => {
+const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      if (file.size > 2 * 1024 * 1024) {
-        alert("File is too large! Please choose an image under 2MB.");
+      // Change 2 * 1024 * 1024 to 10 * 1024 * 1024 (10MB)
+      if (file.size > 10 * 1024 * 1024) {
+        alert("File is too large! Please choose an image under 10MB.");
         return;
       }
+
       const reader = new FileReader();
       reader.readAsDataURL(file);
       reader.onloadend = () => {

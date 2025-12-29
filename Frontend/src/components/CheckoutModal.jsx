@@ -51,7 +51,7 @@ const CheckoutModal = ({ isOpen, onClose, cartItems, total, onClearCart }) => {
 
   const esewaCall = (amount, orderId, signature) => {
     var path = "https://rc-epay.esewa.com.np/api/epay/main/v2/form";
-   var params = {
+    var params = {
       amount: amount,
       tax_amount: "0",
       total_amount: amount,
@@ -97,75 +97,114 @@ const CheckoutModal = ({ isOpen, onClose, cartItems, total, onClearCart }) => {
 
   return (
     <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in">
-      <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden animate-scale-up">
+      {/* Expanded Width for Split View */}
+      <div className="bg-white w-full max-w-4xl rounded-2xl shadow-2xl overflow-hidden animate-scale-up flex flex-col md:flex-row max-h-[90vh]">
 
-        <div className="bg-gray-50 px-6 py-4 border-b flex justify-between items-center">
-          <h2 className="text-xl font-bold text-gray-800">Checkout</h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-red-500 text-2xl">✕</button>
-        </div>
+        {/* 🛍️ LEFT SIDE: ORDER SUMMARY */}
+        <div className="bg-gray-50 p-6 md:w-5/12 border-r border-gray-100 flex flex-col hidden md:flex">
+          <h3 className="font-bold text-gray-800 mb-4 text-lg">Order Summary</h3>
 
-        <form onSubmit={handleOrder} className="p-6 space-y-4">
-
-          <div>
-            <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Full Name</label>
-            <input name="name" required onChange={handleChange} className="w-full border rounded-lg p-3 outline-none focus:ring-2 focus:ring-blue-500 transition" placeholder="Ram Sharma" />
+          <div className="flex-1 overflow-y-auto pr-2 space-y-4">
+            {cartItems.map(item => (
+              <div key={item.id} className="flex gap-4 items-start">
+                <div className="w-16 h-16 bg-white rounded-lg border border-gray-200 flex-shrink-0 p-1">
+                  <img src={item.imageUrl || item.image} alt="" className="w-full h-full object-contain" />
+                </div>
+                <div>
+                  <p className="font-bold text-gray-700 text-sm line-clamp-2">{item.name}</p>
+                  <p className="text-gray-500 text-xs mt-1">{item.quantity} x Rs.{item.price}</p>
+                </div>
+              </div>
+            ))}
           </div>
 
-              <div>
-            <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Email Address</label>
-            <input name="email" type="email" required onChange={handleChange} className="w-full border rounded-lg p-3 outline-none focus:ring-2 focus:ring-blue-500 transition" placeholder="ram@example.com" />
-          </div>
-
-          <div>
-            <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Delivery Address</label>
-            <input name="address" required onChange={handleChange} className="w-full border rounded-lg p-3 outline-none focus:ring-2 focus:ring-blue-500 transition" placeholder="Kathmandu, Nepal" />
-          </div>
-
-          <div>
-            <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Phone Number</label>
-            <input name="phone" type="number" required onChange={handleChange} className="w-full border rounded-lg p-3 outline-none focus:ring-2 focus:ring-blue-500 transition" placeholder="98XXXXXXXX" />
-          </div>
-
-          <div>
-            <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Select Payment Method</label>
-            <div className="grid grid-cols-3 gap-3">
-
-              {/* COD Option */}
-              <label className={`border-2 rounded-xl p-3 flex flex-col items-center justify-center gap-1 cursor-pointer transition h-20 ${formData.payment === 'COD' ? 'border-blue-600 bg-blue-50' : 'border-gray-100 hover:border-gray-200'}`}>
-                <input type="radio" name="payment" value="COD" checked={formData.payment === 'COD'} onChange={handleChange} className="hidden" />
-                <span className="text-2xl">💵</span>
-                <span className="font-bold text-xs text-gray-700">Cash</span>
-              </label>
-
-              {/* eSewa Option */}
-              <label className={`border-2 rounded-xl p-3 flex flex-col items-center justify-center cursor-pointer transition h-20 overflow-hidden ${formData.payment === 'eSewa' ? 'border-green-500 ring-1 ring-green-500' : 'border-gray-100 hover:border-gray-200'}`}>
-                <input type="radio" name="payment" value="eSewa" checked={formData.payment === 'eSewa'} onChange={handleChange} className="hidden" />
-                {/* 👇 Using the online URL */}
-                <img src={esewa} alt="eSewa" className="h-15 text-2xl object-contain p-2" />
-                <span className="font-bold text-sm text-gray-700">eSewa</span>
-              </label>
-
-              {/* Khalti Option */}
-              <label className={`border-2 rounded-xl p-3 flex flex-col items-center justify-center cursor-pointer transition h-20 overflow-hidden ${formData.payment === 'Khalti' ? 'border-purple-500 ring-1 ring-purple-500' : 'border-gray-100 hover:border-gray-200'}`}>
-                <input type="radio" name="payment" value="Khalti" checked={formData.payment === 'Khalti'} onChange={handleChange} className="hidden" />
-                {/* 👇 Using the online URL */}
-                <img src={khalti} alt="Khalti" className="h-15 text-2xl object-contain p-2" />
-                <span className="font-bold text-sm text-gray-700">Khalti</span>
-              </label>
-
+          <div className="mt-6 pt-6 border-t border-gray-200">
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-gray-500">Subtotal</span>
+              <span className="font-bold">Rs.{total}</span>
+            </div>
+            <div className="flex justify-between items-center mb-4">
+              <span className="text-gray-500">Shipping</span>
+              <span className="text-green-600 font-bold">Free</span>
+            </div>
+            <div className="flex justify-between items-center text-xl font-extrabold text-gray-900 border-t pt-4 border-dashed">
+              <span>Total</span>
+              <span className="text-blue-600">Rs.{total}</span>
             </div>
           </div>
+        </div>
 
-          <div className="pt-4 border-t flex justify-between items-center">
-            <span className="text-gray-500">Total Amount:</span>
-            <span className="text-2xl font-bold text-blue-600">Rs.{total}</span>
+        {/* 📝 RIGHT SIDE: SHIPPING & PAYMENT FORM */}
+        <div className="p-6 md:w-7/12 overflow-y-auto">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-xl font-bold text-gray-800">Shipping Details</h2>
+            <button onClick={onClose} className="text-gray-400 hover:text-red-500 text-2xl transition">✕</button>
           </div>
 
-          <button className="w-full bg-gray-900 text-white py-4 rounded-xl font-bold text-lg hover:bg-black transition shadow-lg transform active:scale-[0.98]">
-            {formData.payment === 'COD' ? 'Place Order' : `Pay with ${formData.payment}`}
-          </button>
+          <form onSubmit={handleOrder} className="space-y-4">
 
-        </form>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Full Name</label>
+                <input name="name" required onChange={handleChange} className="w-full border border-gray-300 rounded-lg p-3 outline-none focus:ring-2 focus:ring-blue-500 transition" placeholder="Ram Sharma" />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Phone</label>
+                <input name="phone" type="number" required onChange={handleChange} className="w-full border border-gray-300 rounded-lg p-3 outline-none focus:ring-2 focus:ring-blue-500 transition" placeholder="98XXXXXXXX" />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Email Address</label>
+              <input name="email" type="email" required onChange={handleChange} className="w-full border border-gray-300 rounded-lg p-3 outline-none focus:ring-2 focus:ring-blue-500 transition" placeholder="ram@example.com" />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Delivery Address</label>
+              <input name="address" required onChange={handleChange} className="w-full border border-gray-300 rounded-lg p-3 outline-none focus:ring-2 focus:ring-blue-500 transition" placeholder="Street, City, Nepal" />
+            </div>
+
+            <div className="mt-6">
+              <label className="block text-xs font-bold text-gray-500 uppercase mb-3">Payment Method</label>
+              <div className="grid grid-cols-3 gap-3">
+
+                {/* COD Option */}
+                <label className={`border-2 rounded-xl p-3 flex flex-col items-center justify-center gap-1 cursor-pointer transition h-20 ${formData.payment === 'COD' ? 'border-blue-600 bg-blue-50' : 'border-gray-100 hover:border-gray-200'}`}>
+                  <input type="radio" name="payment" value="COD" checked={formData.payment === 'COD'} onChange={handleChange} className="hidden" />
+                  <span className="text-2xl">💵</span>
+                  <span className="font-bold text-xs text-gray-700">Cash</span>
+                </label>
+
+                {/* eSewa Option */}
+                <label className={`border-2 rounded-xl p-3 flex flex-col items-center justify-center cursor-pointer transition h-20 overflow-hidden ${formData.payment === 'eSewa' ? 'border-green-500 ring-1 ring-green-500' : 'border-gray-100 hover:border-gray-200'}`}>
+                  <input type="radio" name="payment" value="eSewa" checked={formData.payment === 'eSewa'} onChange={handleChange} className="hidden" />
+                  {/* 👇 Using the online URL */}
+                  <img src={esewa} alt="eSewa" className="h-15 text-2xl object-contain p-2" />
+                  <span className="font-bold text-sm text-gray-700">eSewa</span>
+                </label>
+
+                {/* Khalti Option */}
+                <label className={`border-2 rounded-xl p-3 flex flex-col items-center justify-center cursor-pointer transition h-20 overflow-hidden ${formData.payment === 'Khalti' ? 'border-purple-500 ring-1 ring-purple-500' : 'border-gray-100 hover:border-gray-200'}`}>
+                  <input type="radio" name="payment" value="Khalti" checked={formData.payment === 'Khalti'} onChange={handleChange} className="hidden" />
+                  {/* 👇 Using the online URL */}
+                  <img src={khalti} alt="Khalti" className="h-15 text-2xl object-contain p-2" />
+                  <span className="font-bold text-sm text-gray-700">Khalti</span>
+                </label>
+
+              </div>
+            </div>
+
+            <div className="md:hidden pt-4 border-t flex justify-between items-center">
+              <span className="text-gray-500 font-bold">Total to Pay</span>
+              <span className="text-xl font-bold text-blue-600">Rs.{total}</span>
+            </div>
+
+            <button className="w-full bg-gray-900 text-white py-4 rounded-xl font-bold text-lg hover:bg-black transition shadow-lg transform active:scale-[0.99] mt-2">
+              {formData.payment === 'COD' ? `Confirm Order • Rs.${total}` : `Pay Rs.${total}`}
+            </button>
+
+          </form>
+        </div>
       </div>
     </div>
   );
