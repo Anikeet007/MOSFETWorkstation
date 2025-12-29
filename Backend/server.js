@@ -4,6 +4,8 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const nodemailer = require('nodemailer');
+const axios = require('axios');
+const crypto = require('crypto');
 
 const app = express();
 app.use(cors());
@@ -166,6 +168,59 @@ app.put('/api/orders/:id/deliver', async (req, res) => {
     res.json({ message: "Order marked as Delivered and Email Sent!" });
   } catch (err) {
     res.status(500).json({ error: "Failed to update order" });
+  }
+});
+
+// 🔐 eSewa Signature
+app.post('/api/esewa-signature', (req, res) => {
+  try {
+    const { total_amount, transaction_uuid, product_code } = req.body;
+    
+    // 👇 Switch keys based on mode
+    let secret = "8gBm/:&EnhH.1/q"; // Default Test Key
+    
+    if (product_code !== "EPAYTEST") { 
+        secret = process.env.ESEWA_LIVE_SECRET; // Use real key from .env if live
+    }
+
+    const signatureString = `total_amount=${total_amount},transaction_uuid=${transaction_uuid},product_code=${product_code}`;
+    const hash = crypto.createHmac('sha256', secret).update(signatureString).digest('base64');
+    
+    res.json({ signature: hash });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// 🟣 Khalti Initiation
+app.post('/api/khalti-initiate', async (req, res) => {
+  const { amount, orderId, name, email, phone } = req.body;
+  
+  const payload = {
+    "return_url": "https://mosfet.com.np/order-success",
+    "website_url": "https://mosfet.com.np",
+    "amount": amount * 100, // Convert to paisa
+    "purchase_order_id": orderId,
+    "purchase_order_name": "Mosfet Order",
+    "customer_info": {
+        "name": name,
+        "email": email,
+        "phone": phone
+    }
+  };
+
+  try {
+    const response = await axios.post("https://a.khalti.com/api/v2/epayment/initiate/", payload, {
+        headers: {
+            // 👇 Test Secret Key (Replace with your own from Khalti.com)
+            "Authorization": "Key live_secret_key_68791341fdd94846a146f0457ff7b455", 
+            "Content-Type": "application/json"
+        }
+    });
+    res.json(response.data);
+  } catch (err) {
+    console.error("Khalti Error:", err.response ? err.response.data : err.message);
+    res.status(500).json({ error: "Khalti initiation failed" });
   }
 });
 

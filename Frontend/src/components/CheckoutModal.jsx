@@ -4,6 +4,12 @@ import { useNavigate } from 'react-router-dom';
 import esewa from '../assets/images/esewa.png';
 import khalti from '../assets/images/khalti.png';
 
+const BACKEND_URL = "https://mosfetworkstation-backend.onrender.com";
+
+// 🟢 ESEWA TEST CONFIGURATION (Enabled)
+const ESEWA_PRODUCT_CODE = "EPAYTEST"; 
+const ESEWA_URL = "https://rc-epay.esewa.com.np/api/epay/main/v2/form";
+
 const CheckoutModal = ({ isOpen, onClose, cartItems, total, onClearCart }) => {
   const [formData, setFormData] = useState({ name: '', address: '', phone: '', payment: 'COD' });
   const navigate = useNavigate();
@@ -25,22 +31,52 @@ const CheckoutModal = ({ isOpen, onClose, cartItems, total, onClearCart }) => {
     };
 
     try {
-      const res = await axios.post('https://mosfetworkstation-backend.onrender.com/api/orders', orderData);
+      // 1. Save Order to Database
+      const res = await axios.post(`${BACKEND_URL}/api/orders`, orderData);
       const orderId = res.data.orderId;
-
+      
+      // 2. Handle Payment Methods
       if (formData.payment === 'eSewa') {
+        // --- eSewa Logic ---
         try {
-          const sigRes = await axios.post('https://mosfetworkstation-backend.onrender.com/api/esewa-signature', {
-            total_amount: total,
-            transaction_uuid: orderId,
-            product_code: "EPAYTEST"
+          // Get Signature from Backend
+          // We pass "EPAYTEST" so the backend knows to use the test secret key
+          const sigRes = await axios.post(`${BACKEND_URL}/api/esewa-signature`, {
+             total_amount: total,
+             transaction_uuid: orderId,
+             product_code: ESEWA_PRODUCT_CODE
           });
+          // Redirect to eSewa
           esewaCall(total, orderId, sigRes.data.signature);
         } catch (err) {
           console.error("eSewa Error:", err);
           alert("eSewa connection failed. Please check backend.");
         }
-      } else {
+      } 
+      else if (formData.payment === 'Khalti') {
+        // --- Khalti Logic (Redirection Method) ---
+        try {
+            const khaltiRes = await axios.post(`${BACKEND_URL}/api/khalti-initiate`, {
+                amount: total, // Backend will convert to paisa
+                orderId: orderId,
+                name: formData.name,
+                email: formData.email,
+                phone: formData.phone
+            });
+
+            if (khaltiRes.data.payment_url) {
+                // Redirect user to Khalti's payment page
+                window.location.href = khaltiRes.data.payment_url;
+            } else {
+                alert("Khalti initiation failed.");
+            }
+        } catch (err) {
+            console.error("Khalti Error:", err);
+            alert("Khalti connection failed.");
+        }
+      } 
+      else {
+        // --- COD Logic ---
         completeOrder(orderId);
       }
     } catch (err) {
@@ -49,25 +85,29 @@ const CheckoutModal = ({ isOpen, onClose, cartItems, total, onClearCart }) => {
     }
   };
 
+  // eSewa Form Auto-Submit
   const esewaCall = (amount, orderId, signature) => {
-    var path = "https://rc-epay.esewa.com.np/api/epay/main/v2/form";
+    // Auto-detect return URLs (Works on localhost AND live site)
+    const returnUrl = `${window.location.origin}/order-success`;
+    const failureUrl = `${window.location.origin}/`;
+
     var params = {
       amount: amount,
       tax_amount: "0",
       total_amount: amount,
       transaction_uuid: orderId,
-      product_code: "EPAYTEST",
+      product_code: ESEWA_PRODUCT_CODE,
       product_service_charge: "0",
       product_delivery_charge: "0",
-      success_url: "https://mosfet.com.np/order-success",
-      failure_url: "https://mosfet.com.np/",
+      success_url: returnUrl,
+      failure_url: failureUrl,
       signed_field_names: "total_amount,transaction_uuid,product_code",
       signature: signature,
     };
 
     var form = document.createElement("form");
     form.setAttribute("method", "POST");
-    form.setAttribute("action", path);
+    form.setAttribute("action", ESEWA_URL);
 
     for (var key in params) {
       var hiddenField = document.createElement("input");
@@ -84,14 +124,14 @@ const CheckoutModal = ({ isOpen, onClose, cartItems, total, onClearCart }) => {
   const completeOrder = (orderId) => {
     onClearCart();
     onClose();
-    navigate('/order-success', {
-      state: {
+    navigate('/order-success', { 
+      state: { 
         orderId: orderId,
         customer: formData,
         items: cartItems,
         total: total,
         paymentMethod: formData.payment
-      }
+      } 
     });
   };
 
