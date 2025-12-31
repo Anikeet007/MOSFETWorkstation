@@ -204,8 +204,8 @@ const handleFileChange = (e) => {
                      </div>
                   </div>
                   <div className="p-4 bg-white">
-                    <div className="space-y-2">{order.items.map((item, idx) => (<div key={idx} className="flex items-center justify-between text-sm"><div className="flex items-center gap-3"><span className="bg-gray-100 text-gray-600 px-2 py-0.5 rounded text-xs font-bold">{item.quantity}x</span><span className="text-gray-700">{item.name}</span></div><span className="font-medium">${(item.price * item.quantity).toFixed(2)}</span></div>))}</div>
-                    <div className="mt-4 pt-4 border-t flex justify-between items-center"><span className="text-sm font-bold text-gray-500">TOTAL AMOUNT</span><span className="text-xl font-bold text-blue-600">${order.totalAmount}</span></div>
+                    <div className="space-y-2">{order.items.map((item, idx) => (<div key={idx} className="flex items-center justify-between text-sm"><div className="flex items-center gap-3"><span className="bg-gray-100 text-gray-600 px-2 py-0.5 rounded text-xs font-bold">{item.quantity}x</span><span className="text-gray-700">{item.name}</span></div><span className="font-medium">Rs.{(item.price * item.quantity).toFixed(2)}</span></div>))}</div>
+                    <div className="mt-4 pt-4 border-t flex justify-between items-center"><span className="text-sm font-bold text-gray-500">TOTAL AMOUNT</span><span className="text-xl font-bold text-blue-600">Rs.{order.totalAmount}</span></div>
                   </div>
                </div>
              ))}

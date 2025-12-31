@@ -54,6 +54,13 @@ export const Contact = () => {
       return;
     }
     
+     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      alert("❌ Invalid Email Format! Please enter a valid email address.");
+      return;
+    }
+
+
     setStatus('loading');
     try {
       // 👇 FIXED: Removed quotes around API_URL variable
@@ -83,7 +90,7 @@ export const Contact = () => {
           <div className="space-y-8 mb-12">
             <div className="flex items-start gap-6 p-4 rounded-xl hover:bg-gray-50 transition"><div className="bg-blue-100 p-4 rounded-full text-2xl shrink-0">📍</div><div><h3 className="font-bold text-gray-900 text-xl mb-1">Visit Store</h3><p className="text-gray-600 text-lg">Golmadi, Bhaktapur</p></div></div>
             <div className="flex items-start gap-6 p-4 rounded-xl hover:bg-gray-50 transition"><div className="bg-green-100 p-4 rounded-full text-2xl shrink-0">📞</div><div><h3 className="font-bold text-gray-900 text-xl mb-1">Call Us</h3><p className="text-gray-600 text-lg">+977-9765300233</p></div></div>
-            <div className="flex items-start gap-6 p-4 rounded-xl hover:bg-gray-50 transition"><div className="bg-orange-100 p-4 rounded-full text-2xl shrink-0">✉️</div><div><h3 className="font-bold text-gray-900 text-xl mb-1">Email</h3><p className="text-gray-600 text-lg">support@mosfet.com</p></div></div>
+            <div className="flex items-start gap-6 p-4 rounded-xl hover:bg-gray-50 transition"><div className="bg-orange-100 p-4 rounded-full text-2xl shrink-0">✉️</div><div><h3 className="font-bold text-gray-900 text-xl mb-1">Email</h3><p className="text-gray-600 text-lg">mosfetws@gmail.com</p></div></div>
           </div>
 
           {/* Map */}

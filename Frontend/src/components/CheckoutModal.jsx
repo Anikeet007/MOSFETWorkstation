@@ -188,10 +188,20 @@ const CheckoutModal = ({ isOpen, onClose, cartItems, total, onClearCart }) => {
                 <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Full Name</label>
                 <input name="name" required onChange={handleChange} className="w-full border border-gray-300 rounded-lg p-3 outline-none focus:ring-2 focus:ring-blue-500 transition" placeholder="Ram Sharma" />
               </div>
+
               <div>
-                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Phone</label>
-                <input name="phone" type="number" required onChange={handleChange} className="w-full border border-gray-300 rounded-lg p-3 outline-none focus:ring-2 focus:ring-blue-500 transition" placeholder="98XXXXXXXX" />
-              </div>
+                    <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Phone</label>
+                    <input 
+                      name="phone" 
+                      type="tel" 
+                      required 
+                      maxLength="10"
+                      value={formData.phone}
+                      onChange={handleChange} 
+                      className="w-full border border-gray-300 rounded-lg p-3 outline-none focus:ring-2 focus:ring-blue-500 transition" 
+                      placeholder="98XXXXXXXX" 
+                    />
+                  </div>
             </div>
 
             <div>
@@ -219,7 +229,7 @@ const CheckoutModal = ({ isOpen, onClose, cartItems, total, onClearCart }) => {
                 <label className={`border-2 rounded-xl p-3 flex flex-col items-center justify-center cursor-pointer transition h-20 overflow-hidden ${formData.payment === 'eSewa' ? 'border-green-500 ring-1 ring-green-500' : 'border-gray-100 hover:border-gray-200'}`}>
                   <input type="radio" name="payment" value="eSewa" checked={formData.payment === 'eSewa'} onChange={handleChange} className="hidden" />
                   {/* 👇 Using the online URL */}
-                  <img src={esewa} alt="eSewa" className="h-15 text-2xl object-contain p-2" />
+                  <img src={esewa} alt="eSewa" className="h-6 text-2xl object-contain p-2" />
                   <span className="font-bold text-sm text-gray-700">eSewa</span>
                 </label>
 
@@ -227,7 +237,7 @@ const CheckoutModal = ({ isOpen, onClose, cartItems, total, onClearCart }) => {
                 <label className={`border-2 rounded-xl p-3 flex flex-col items-center justify-center cursor-pointer transition h-20 overflow-hidden ${formData.payment === 'Khalti' ? 'border-purple-500 ring-1 ring-purple-500' : 'border-gray-100 hover:border-gray-200'}`}>
                   <input type="radio" name="payment" value="Khalti" checked={formData.payment === 'Khalti'} onChange={handleChange} className="hidden" />
                   {/* 👇 Using the online URL */}
-                  <img src={khalti} alt="Khalti" className="h-15 text-2xl object-contain p-2" />
+                  <img src={khalti} alt="Khalti" className="h-6 text-2xl object-contain p-2" />
                   <span className="font-bold text-sm text-gray-700">Khalti</span>
                 </label>
 

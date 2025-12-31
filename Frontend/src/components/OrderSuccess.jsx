@@ -1,5 +1,6 @@
 import React from 'react';
 import { useLocation, Link } from 'react-router-dom';
+import logo from '../assets/images/logo.jpeg'
 
 const OrderSuccess = () => {
   const location = useLocation();
@@ -32,11 +33,15 @@ const OrderSuccess = () => {
         
         {/* Header */}
         <div className="bg-green-600 p-8 text-center text-white">
-          <div className="inline-flex bg-white text-green-600 rounded-full p-3 mb-4 shadow-sm">
+           <div className="flex justify-center mb-6">
+            <img src={LOGO_URL} alt="Mosfet Workstation" className="h-16 object-contain" />
+          </div>
+
+          <div className="inline-flex bg-green-100 text-green-600 rounded-full p-3 mb-4">
             <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
           </div>
-          <h1 className="text-3xl font-bold mb-2">Order Confirmed!</h1>
-          <p className="opacity-90">Thank you for shopping with Mosfet Workstation.</p>
+          <h1 className="text-3xl font-bold text-gray-800 mb-2">Order Confirmed!</h1>
+          <p className="text-gray-500">Thank you for shopping with Mosfet Workstation.</p>
         </div>
 
         {/* Invoice Details */}
