@@ -34,7 +34,7 @@ const OrderSuccess = () => {
         {/* Header */}
         <div className="bg-green-600 p-8 text-center text-white">
            <div className="flex justify-center mb-6">
-            <img src={LOGO_URL} alt="Mosfet Workstation" className="h-16 object-contain" />
+            <img src={logo} alt="Mosfet Workstation" className="h-16 object-contain" />
           </div>
 
           <div className="inline-flex bg-green-100 text-green-600 rounded-full p-3 mb-4">
